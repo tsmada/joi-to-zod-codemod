@@ -8,27 +8,80 @@ import * as fs from "fs";
 import * as path from "path";
 
 const joiToZodTransformer = (code: string): string => {
-  const ast = parse(code, { sourceType: "module", plugins: ["typescript"] });
+  const ast = parse(code, { sourceType: 'module', plugins: ['typescript'] });
+
+  const joiToZodMap: Record<string, string> = {
+    string: 'string',
+    number: 'number',
+    boolean: 'boolean',
+    object: 'object',
+    array: 'array',
+    date: 'date',
+  };
 
   traverse(ast, {
-    ImportDeclaration({ node }) {
-      if (node.source.value === "joi") {
-        node.source.value = "zod";
+    ImportDeclaration(path) {
+      const node = path.node;
+      if (node.source.value === 'joi') {
+        node.source.value = 'zod';
+        node.specifiers.forEach((specifier) => {
+          if (t.isImportDefaultSpecifier(specifier)) {
+            path.insertBefore(
+              t.importDeclaration(
+                [t.importSpecifier(t.identifier('z'), t.identifier('z'))],
+                t.stringLiteral('zod')
+              )
+            );
+            path.remove();
+          } else if (
+            t.isImportSpecifier(specifier) &&
+            t.isIdentifier(specifier.imported) &&
+            specifier.imported.name === 'Joi'
+          ) {
+            specifier.imported.name = 'z';
+          }
+        });
       }
     },
-    CallExpression({ node }) {
+    MemberExpression(path) {
+      const node = path.node;
       if (
-        t.isIdentifier(node.callee) &&
-        node.callee.name === "Joi" &&
-        node.arguments.length > 0
+        t.isIdentifier(node.object) &&
+        node.object.name === 'Joi' &&
+        t.isIdentifier(node.property) &&
+        joiToZodMap.hasOwnProperty(node.property.name)
       ) {
-        node.callee.name = "Zod";
+        node.object.name = 'z';
+        node.property.name = joiToZodMap[node.property.name];
+      }
+    },
+    CallExpression(path) {
+      if (
+        t.isMemberExpression(path.node.callee) &&
+        t.isIdentifier(path.node.callee.property) &&
+        path.node.callee.property.name === 'optional'
+      ) {
+        path.replaceWith(
+          t.callExpression(
+            t.memberExpression(path.node.callee.object, t.identifier('optional')),
+            []
+          )
+        );
+      } else if (
+        t.isMemberExpression(path.node.callee) &&
+        t.isIdentifier(path.node.callee.property) &&
+        path.node.callee.property.name === 'required'
+      ) {
+        path.replaceWith(path.node.callee.object);
       }
     },
   });
 
   return generate(ast).code;
 };
+
+
+
 
 const transformFile = (filePath: string) => {
   const code = fs.readFileSync(filePath, "utf-8");
