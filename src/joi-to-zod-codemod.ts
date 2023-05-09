@@ -59,7 +59,9 @@ const joiToZodTransformer = (code: string): string => {
       if (
         t.isMemberExpression(path.node.callee) &&
         t.isIdentifier(path.node.callee.property) &&
-        path.node.callee.property.name === 'optional'
+        path.node.callee.property.name === 'optional' &&
+        t.isIdentifier(path.node.callee.object) &&
+        path.node.callee.object.name === 'Joi'
       ) {
         path.replaceWith(
           t.callExpression(
