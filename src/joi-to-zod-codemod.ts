@@ -68,7 +68,7 @@ const joiToZodTransformer = (code: string): string => {
             t.memberExpression(path.node.callee.object, t.identifier('optional')),
             []
           )
-        );      
+        );
       } else if (
         t.isMemberExpression(path.node.callee) &&
         t.isIdentifier(path.node.callee.property) &&
