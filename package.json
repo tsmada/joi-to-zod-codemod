@@ -1,12 +1,12 @@
 {
   "name": "@serouslabs/joi-to-zod-codemod",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "author": "Adam Struthers <adam@serouslabs.com>",
   "description": "Joi to Zod codemod",
   "scripts": {
     "start": "ts-node src/joi-to-zod-codemod.ts"
   },
-  "keywords": [],
+  "keywords": ["joi", "zod", "codemod", "typescript"],
   "license": "MIT",
   "devDependencies": {
     "@babel/generator": "^7.21.5",
