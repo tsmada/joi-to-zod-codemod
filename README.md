@@ -42,18 +42,28 @@ npx ts-node src/joi-to-zod-codemod.ts ./src/services
 
 This will apply the Joi to Zod transformation on all TypeScript files in the specified directory.
 
-## How It Works
+## Features
 
 The codemod uses Babel to parse your TypeScript code into an Abstract Syntax Tree (AST), traverse the AST to find Joi schema validation functions, and replace them with their Zod equivalents. The transformed code is then written back to the file.
 
 The codemod will update import statements and transform the following Joi functions to their Zod equivalents:
 
-- string
-- number
-- boolean
-- object
-- array
-- date
+- `Joi.string()` -> `z.string()`
+- `Joi.number()` -> `z.number()`
+- `Joi.boolean()` -> `z.boolean()`
+- `Joi.object()` -> `z.object()`
+- `Joi.array()` -> `z.array()`
+- `Joi.date()` -> `z.date()`
+- `Joi.any()` -> `z.any()`
+- `Joi.unknown()` -> `z.unknown()`
+- `Joi.undefined()` -> `z.undefined()`
+- `Joi.null()` -> `z.null()`
+- `Joi.void()` -> `z.void()`
+- `Joi.never()` -> `z.never()`
+- `Joi.symbol()` -> `z.symbol()`
+- `Joi.bigint()` -> `z.bigint()`
+
+Additionally, this codemod updates import statements from `import Joi from 'joi'` to `import { z } from 'zod'`.
 
 ## Issues
 
